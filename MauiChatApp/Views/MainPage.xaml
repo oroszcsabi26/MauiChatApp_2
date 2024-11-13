@@ -1,0 +1,124 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MauiChatApp.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MauiChatApp.Views.MainPage">
+
+    <!-- We make the whole side scrollable -->
+    <ScrollView BackgroundColor="LightBlue">
+        <Grid ColumnDefinitions="400, 200" RowDefinitions="Auto, *">
+            <!-- Main chat place -->
+            <StackLayout Grid.Column="0" Padding="10">
+                <!-- Join Server button in the right top -->
+                <Button Text="Join Server" Command="{Binding JoinServerCommand}" WidthRequest="105" HorizontalOptions="End" VerticalOptions="Start" />
+
+                <!-- (Start/Stop Camera) buttons -->
+                <Grid ColumnDefinitions="*,*">
+                    <Button Text="Start Camera" Command="{Binding StartCameraCommand}" IsEnabled="{Binding CanStartCamera}" Grid.Column="0" />
+                    <Button Text="Stop Camera" Command="{Binding StopCameraCommand}" Grid.Column="1" IsEnabled="{Binding IsCameraRunning}" />
+                </Grid>
+
+                <!-- Camera Live View -->
+                <Image x:Name="CameraPreview" HeightRequest="200" HorizontalOptions="Center" Aspect="AspectFit" Source="{Binding CameraPreviewImage}" />
+                <toolkit:CameraView x:Name="MyCamera" IsEnabled="False" IsVisible="False" />
+
+                <!-- New Room és Cancel buttons -->
+                <Grid ColumnDefinitions="*,*">
+                    <Button Text="New Room" Command="{Binding NewRoomCommand}" Grid.Column="0" IsEnabled="{Binding IsServerConnected}" />
+                    <Button Text="Cancel" Command="{Binding CancelNewRoomCommand}" Grid.Column="1" IsEnabled="{Binding IsRoomNameVisible}" />
+                </Grid>
+                <Entry Placeholder="Enter Room Name" Text="{Binding NewRoomName}" IsVisible="{Binding IsRoomNameVisible}" />
+                <Button Text="Create Room" Command="{Binding CreateRoomCommand}" IsVisible="{Binding IsRoomNameVisible}" />
+
+                <!-- Chat UI Elements -->
+                <Entry Placeholder="Name" Text="{Binding User.Name}" />
+                <Entry Placeholder="Room" Text="{Binding RoomName}" IsVisible="False" />
+
+                <!-- Join/Leave Chat buttons -->
+                <Grid ColumnDefinitions="*,*">
+                    <Button Text="Join Chat" Command="{Binding JoinChatCommand}" Grid.Column="0" IsEnabled="{Binding CanJoinChat}" />
+                    <Button Text="Leave Chat" Command="{Binding LeaveChatCommand}" IsEnabled="{Binding IsChatting}" Grid.Column="1" />
+                </Grid>
+
+                <!-- Messages -->
+                <CollectionView ItemsSource="{Binding Messages}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- message (own or others) -->
+                                <Frame Grid.Row="0" Padding="10" CornerRadius="10"
+                                    BackgroundColor="{Binding IsOwnMessage, Converter={StaticResource OwnMessageBackgroundConverter}}"
+                                    HorizontalOptions="{Binding IsOwnMessage, Converter={StaticResource MessageAlignmentConverter}}"
+                                    HasShadow="True"
+                                    IsVisible="{Binding IsImage, Converter={StaticResource InverseBoolConverter}}">
+                                    <StackLayout>
+                                        <Label Text="{Binding Text}" TextColor="White" />
+                                        <Label Text="{Binding TimeStamp, StringFormat='{0:HH:mm:ss}'}" TextColor="Gray" FontSize="10"/>
+                                    </StackLayout>
+                                </Frame>
+
+                                <!-- if message is an image -->
+                                <StackLayout Grid.Row="1" IsVisible="{Binding IsImage}" HorizontalOptions="{Binding IsOwnMessage, Converter={StaticResource MessageAlignmentConverter}}">
+                                    <Label Text="{Binding Text}" TextColor="Gray" FontSize="12" HorizontalOptions="{Binding IsOwnMessage, Converter={StaticResource MessageAlignmentConverter}}"/>
+                                    <Image Source="{Binding ImageSource}" Aspect="AspectFit" HeightRequest="200" >
+                                        <Image.Triggers>
+                                            <DataTrigger TargetType="Image" Binding="{Binding IsOwnMessage}" Value="False">
+                                                <Setter Property="HorizontalOptions" Value="{Binding IsOwnMessage, Converter={StaticResource MessageAlignmentConverter}}" />
+                                            </DataTrigger>
+                                        </Image.Triggers>
+                                    </Image>
+                                    <!-- timestamp tot the right if image -->
+                                    <Label Text="{Binding TimeStamp, StringFormat='{0:HH:mm:ss}'}" TextColor="Gray" FontSize="10" HorizontalOptions="{Binding IsOwnMessage, Converter={StaticResource MessageAlignmentConverter}}" />
+                                </StackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- message entry and send -->
+                <Entry Placeholder="Message" Text="{Binding MessageText}" IsEnabled="{Binding IsChatting}" ReturnType="Send" ReturnCommand="{Binding SendMessageCommand}" />
+                <Button Text="Send" Command="{Binding SendMessageCommand}" IsEnabled="{Binding IsChatting}" />
+
+                <!-- two columns (Select/Send Image) -->
+                <Grid ColumnDefinitions="*,*">
+                    <Button Text="Select Image" Command="{Binding SelectImageCommand}" IsEnabled="{Binding IsChatting}" Grid.Column="0" />
+                    <Button Text="Send Image" Command="{Binding SendImageCommand}" IsEnabled="{Binding CanSendImage}" Grid.Column="1" />
+                </Grid>
+            </StackLayout>
+
+            <!-- right part cutted -->
+            <BoxView Grid.Column="1" Grid.RowSpan="2" Color="Black" WidthRequest="1" HorizontalOptions="End" />
+
+            <!-- Chatrooms and users -->
+            <Grid BackgroundColor="White" Grid.Column="1" RowDefinitions="Auto,Auto" Padding="10">
+                <Label Text="Chatrooms:" FontAttributes="Bold" FontSize="14" TextColor="Black" HorizontalOptions="Start" VerticalOptions="Start" />
+                <!-- Reachable chatrooms -->
+                <ListView x:Name="AvailableRooms" Margin="0,20,0,0" ItemsSource="{Binding AvailableRooms}" SelectedItem="{Binding SelectedRoom, Mode=TwoWay}" Grid.Row="0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextCell Text="{Binding .}" />
+                            <!-- Chatroom name -->
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <!-- Users in room -->
+                <StackLayout Grid.Row="1" Orientation="Vertical">
+                    <Label Text="Szobában lévő felhasználók:" FontAttributes="Bold" FontSize="14" TextColor="Black" HorizontalOptions="Start" VerticalOptions="Start" />
+                    <ListView x:Name="UsersInRoom" ItemsSource="{Binding UsersInRoom}" IsVisible="{Binding IsInRoom}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextCell Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackLayout>
+            </Grid>
+        </Grid>
+    </ScrollView>
+</ContentPage>

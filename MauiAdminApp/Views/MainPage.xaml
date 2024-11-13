@@ -1,0 +1,71 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MauiAdminApp.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MauiAdminApp.Views.MainPage">
+
+    <ScrollView>
+        <StackLayout Padding="20">
+            <Button Text="Join Server" Command="{Binding JoinServerCommand}"/>
+            <!-- Create Room -->
+            <Entry Text="{Binding NewRoomName}" Placeholder="Room Name" />
+            <Button Text="Create Room" Command="{Binding CreateRoomCommand}" />
+
+            <!-- Room List -->
+            <Label Text="Rooms:" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding Rooms}" SelectionMode="Single"
+                            SelectedItem="{Binding SelectedRoom, Mode=TwoWay}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Label Text="{Binding .}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Delete Room -->
+            <Button Text="Delete Selected Room" Command="{Binding DeleteRoomCommand}" />
+
+            <!-- Messages -->
+            <Label Text="Messages:" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding Messages}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <!-- text message if IsImage false -->
+                            <Label Text="{Binding Text}" IsVisible="{Binding IsImage, Converter={StaticResource InverseBoolConverter}}" HorizontalOptions="Start" />
+
+                            <!-- image message if IsImage true -->
+                            <StackLayout Orientation="Vertical" HorizontalOptions="End" IsVisible="{Binding IsImage}">
+                                <Label Text="{Binding Text}" TextColor="Gray" FontSize="12" HorizontalOptions="End" />
+                                <Image Source="{Binding ImageSource}" Aspect="AspectFit" HeightRequest="200" />
+                            </StackLayout>
+                            
+                            <!--timestamp if image to the right-->
+                            <Label Text="{Binding TimeStamp, StringFormat='{0:HH:mm:ss}'}" TextColor="Gray" FontSize="10" HorizontalOptions="{Binding IsImage, Converter={StaticResource MessageAlignmentConverter}}" />
+                        
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- User List -->
+            <Label Text="Users in Room:" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding UsersInRoom}" SelectionMode="Single"
+                            SelectedItem="{Binding SelectedUser, Mode=TwoWay}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Label Text="{Binding .}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Kicj User -->
+            <Button Text="Kick User" Command="{Binding KickUserCommand}" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
+
