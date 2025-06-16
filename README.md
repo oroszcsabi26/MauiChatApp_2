@@ -4,7 +4,7 @@
 
 A **MauiChatApp** egy valós idejű, többfelhasználós csevegőalkalmazás .NET MAUI keretrendszerrel, amely a **SignalR** technológiát használja kommunikációra. A projekt célja, hogy bemutassa, hogyan valósítható meg egy platformfüggetlen chatalkalmazás modern .NET környezetben, adminisztrációs felülettel és szerveroldali vezérléssel.
 
-A megoldás három fő komponensből áll:
+A Solution három fő komponensből áll:
 
 - **MauiChatApp** – Felhasználói csevegőalkalmazás.
 - **MauiAdminApp** – Adminisztrációs felület, ahol szobák hozhatók létre, felhasználók figyelhetők és moderálhatók.
@@ -72,12 +72,6 @@ Ezt a címet szükség esetén módosítani kell a MAUI alkalmazások konfigurá
 - Az admin felületen csak a legutóbbi frissítés óta érkezett üzenetek jelennek meg.
 - A felhasználók és üzenetek szinkronizálása időzítéssel történik.
 - Minden logika MVVM mintára épül.
-
----
-
-## 📸 Képernyőképek (opcionális)
-
-> (Itt képeket is elhelyezhetsz a UI-ról.)
 
 ---
 
